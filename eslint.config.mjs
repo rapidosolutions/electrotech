@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
   globalIgnores([
     ".next/**",
     "dist/**",
+    "backend/dist/**",
+    "backend/.test-dist/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
