@@ -1,11 +1,46 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-async function render(path = "/") {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
-  return worker.fetch(new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
+const frontendRoot = fileURLToPath(new URL("..", import.meta.url));
+const serverEntry = fileURLToPath(new URL("../.output/server/index.mjs", import.meta.url));
+const port = 43_000 + (process.pid % 1_000);
+const origin = `http://127.0.0.1:${port}`;
+let server;
+let serverError = "";
+
+test.before(async () => {
+  server = spawn(process.execPath, [serverEntry], {
+    cwd: frontendRoot,
+    env: { ...process.env, HOST: "127.0.0.1", PORT: String(port), NODE_ENV: "production" },
+    stdio: ["ignore", "ignore", "pipe"],
+  });
+  server.stderr.setEncoding("utf8");
+  server.stderr.on("data", (chunk) => { serverError += chunk; });
+
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    if (server.exitCode !== null) throw new Error(`Nitro server exited before testing. ${serverError}`);
+    try {
+      const response = await fetch(origin);
+      if (response.ok) return;
+    } catch {
+      // The server is still starting.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  throw new Error(`Nitro server did not become ready. ${serverError}`);
+});
+
+test.after(async () => {
+  if (!server || server.exitCode !== null) return;
+  server.kill();
+  await new Promise((resolve) => server.once("exit", resolve));
+});
+
+function render(path = "/") {
+  return fetch(`${origin}${path}`, { headers: { accept: "text/html" } });
 }
 
 test("server-renders the complete Electro Tech page", async () => {
@@ -15,6 +50,9 @@ test("server-renders the complete Electro Tech page", async () => {
   assert.match(html, /Powering Progress/);
   assert.match(html, /With Smarter Energy/);
   assert.match(html, /Find your solar starting point/);
+  assert.match(html, /AI Solar Bill Analyzer/);
+  assert.match(html, /Upload your electricity bill and get a preliminary solar system recommendation based on your actual energy consumption/);
+  assert.match(html, /href="\/solar-bill-analyzer"[^>]*>Analyze My Bill/);
   assert.match(html, /Bilal Pharmacy/);
   assert.match(html, /Request My Quote/);
   assert.match(html, /Electro Tech \| Solar Energy &amp; Electrical Solutions/);
@@ -25,6 +63,12 @@ test("adds security headers", async () => {
   const response = await render();
   assert.equal(response.headers.get("x-content-type-options"), "nosniff");
   assert.match(response.headers.get("content-security-policy") ?? "", /frame-ancestors 'none'/);
+});
+
+test("serves public assets from the Nitro output", async () => {
+  const response = await fetch(`${origin}/logos/electrotech-icon.png`);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^image\/png/);
 });
 
 test("server-renders the dedicated Solar Bill Analyzer route", async () => {

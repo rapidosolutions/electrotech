@@ -22,6 +22,8 @@
 /frontend/.next/
 /frontend/.vinext/
 /frontend/out/
+/.output/
+/frontend/.output/
 
 # misc
 .DS_Store

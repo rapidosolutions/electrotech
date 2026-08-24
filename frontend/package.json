@@ -7,10 +7,11 @@
   },
   "scripts": {
     "dev": "vinext dev",
-    "build": "vinext build",
+    "build": "vite build",
     "start": "vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs && npm run test:ui",
     "test:ui": "vitest run",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },
@@ -45,6 +46,7 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "16.4.0",
     "jsdom": "^30.0.1",
+    "nitro": "^3.0.260610-beta",
     "react-server-dom-webpack": "19.2.6",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",

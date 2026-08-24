@@ -1131,7 +1131,7 @@ p:last-child {
 }
 
 /* ============================================================
-   6. SERVICES SECTION (Section 2 - 3-Card Presentation)
+   6. SERVICES SECTION (Section 2 - Services + Digital Tool)
    ============================================================ */
 .services-section {
   background: var(--background);
@@ -1259,6 +1259,64 @@ p:last-child {
   margin-top: auto;
   padding-top: 14px;
   border-top: 1px solid var(--border-subtle);
+}
+
+.analyzer-tool-card {
+  grid-column: 1 / -1;
+  border-color: var(--accent);
+  border-top-width: 3px;
+  background: #fffdf5;
+}
+
+.analyzer-tool-card:hover {
+  border-color: var(--accent);
+}
+
+.analyzer-tool-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(24px, 4vw, 56px);
+}
+
+.analyzer-tool-copy {
+  max-width: 760px;
+}
+
+.analyzer-tool-heading {
+  align-items: center;
+}
+
+.analyzer-tool-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+  color: var(--dark);
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+.analyzer-tool-label {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.analyzer-tool-card .service-desc {
+  margin: 14px 0 0;
+}
+
+.analyzer-tool-action {
+  margin: 0;
+  padding: 0 0 0 clamp(24px, 3vw, 42px);
+  border-top: 0;
+  border-left: 1px solid var(--border-subtle);
 }
 
 /* ============================================================
@@ -1953,6 +2011,18 @@ p:last-child {
   }
   .dominant-card {
     grid-row: auto;
+  }
+  .analyzer-tool-card {
+    grid-column: auto;
+  }
+  .analyzer-tool-body {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .analyzer-tool-action {
+    padding: 14px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--border-subtle);
   }
   .solar-layout, .starting, .about, .contact-layout {
     grid-template-columns: 1fr;

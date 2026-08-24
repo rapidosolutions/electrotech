@@ -10,6 +10,7 @@ import {
   ArrowUp,
   ArrowUpRight,
   Check,
+  FileSearch,
   Mail,
   MessageCircle,
   Phone,
@@ -495,7 +496,7 @@ export function ElectroTechSite() {
           </div>
         </section>
 
-        {/* SERVICES SECTION (Section 2 - 3-Card Presentation) */}
+        {/* SERVICES SECTION (Section 2 - Services + Digital Tool) */}
         <section id="services" className="services-section section-shell section-pad">
           <SectionIntro
             label="OUR SOLUTIONS"
@@ -569,6 +570,26 @@ export function ElectroTechSite() {
                 </ul>
                 <div className="service-card-action">
                   <a className="text-link" href="#contact" onClick={(e) => { e.preventDefault(); scrollToSection("contact"); }}>Discuss Security <LinkIcon /></a>
+                </div>
+              </div>
+            </article>
+
+            {/* Featured Digital Tool — Solar Bill Analyzer */}
+            <article className="service-feature-card analyzer-tool-card">
+              <div className="service-feature-body analyzer-tool-body">
+                <div className="analyzer-tool-copy">
+                  <div className="service-header-row analyzer-tool-heading">
+                    <span className="service-number">04</span>
+                    <span className="analyzer-tool-icon" aria-hidden="true"><FileSearch size={21} strokeWidth={1.8} /></span>
+                    <div>
+                      <span className="analyzer-tool-label">DIGITAL SOLAR TOOL</span>
+                      <h3>AI Solar Bill Analyzer</h3>
+                    </div>
+                  </div>
+                  <p className="service-desc">Upload your electricity bill and get a preliminary solar system recommendation based on your actual energy consumption.</p>
+                </div>
+                <div className="service-card-action analyzer-tool-action">
+                  <a className="button button-primary" href="/solar-bill-analyzer">Analyze My Bill <LinkIcon direction="right" /></a>
                 </div>
               </div>
             </article>
