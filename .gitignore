@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/frontend/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -12,11 +13,15 @@
 
 # testing
 /coverage
+/frontend/coverage/
 
 # next.js
 /.next/
 /.vinext/
 /out/
+/frontend/.next/
+/frontend/.vinext/
+/frontend/out/
 
 # misc
 .DS_Store
@@ -35,9 +40,15 @@ yarn-error.log*
 
 # vercel
 .vercel
+/frontend/.vercel/
 
 /dist/
 /.wrangler/
 /outputs/
 /work/
 /.npm-cache/
+/frontend/dist/
+/frontend/.wrangler/
+/frontend/outputs/
+/frontend/work/
+/frontend/.npm-cache/

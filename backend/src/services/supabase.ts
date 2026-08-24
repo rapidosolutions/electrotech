@@ -6,6 +6,10 @@ export type RateLimitArguments = {
   window_minutes: number;
 };
 
+export type ActionRateLimitArguments = RateLimitArguments & {
+  action_name_value: "solar_bill_extract" | "solar_bill_calculate";
+};
+
 export type QuoteInsert = {
   full_name: string;
   phone: string;
@@ -22,8 +26,8 @@ export type QuoteInsert = {
 
 export type SupabaseAdmin = {
   rpc(
-    name: "check_quote_rate_limit",
-    arguments_: RateLimitArguments,
+    name: "check_quote_rate_limit" | "check_api_action_rate_limit",
+    arguments_: RateLimitArguments | ActionRateLimitArguments,
   ): PromiseLike<{ data: boolean | null; error: unknown }>;
   from(name: "quote_enquiries"): {
     insert(values: QuoteInsert): PromiseLike<{ error: unknown }>;

@@ -1,12 +1,15 @@
 import cors, { type CorsOptions } from "cors";
 import express, { type ErrorRequestHandler, type RequestHandler } from "express";
+import multer from "multer";
 import type { RuntimeConfig } from "./config.js";
 import { createQuoteRouter, MAX_QUOTE_BODY_BYTES } from "./routes/quote.js";
+import { createSolarAnalyzerRouter, MAX_CALCULATE_BODY_BYTES, type SolarAnalyzerRouterDependencies } from "./routes/solar-analyzer.js";
 import type { SupabaseAdmin } from "./services/supabase.js";
 
 type AppDependencies = {
   config: Pick<RuntimeConfig, "nodeEnv" | "frontendOrigin">;
   getSupabaseAdmin?: () => SupabaseAdmin | null;
+  extractBill?: SolarAnalyzerRouterDependencies["extractBill"];
 };
 
 function isLocalDevelopmentOrigin(origin: string): boolean {
@@ -54,7 +57,7 @@ export function createApp(dependencies: AppDependencies) {
   app.use(cors(createCorsOptions(dependencies.config)));
   app.get("/api/health", (_request, response) => response.status(200).json({ ok: true }));
   app.use("/api/quote", quoteContentLengthGuard);
-  app.use(express.json({ limit: MAX_QUOTE_BODY_BYTES }));
+  app.use("/api/quote", express.json({ limit: MAX_QUOTE_BODY_BYTES }));
   app.use(
     "/api/quote",
     createQuoteRouter(
@@ -63,9 +66,29 @@ export function createApp(dependencies: AppDependencies) {
         : {},
     ),
   );
+  app.use(
+    "/api/solar-analyzer",
+    express.json({ limit: MAX_CALCULATE_BODY_BYTES }),
+    createSolarAnalyzerRouter({
+      ...(dependencies.getSupabaseAdmin ? { getSupabaseAdmin: dependencies.getSupabaseAdmin } : {}),
+      ...(dependencies.extractBill ? { extractBill: dependencies.extractBill } : {}),
+    }),
+  );
 
   const errorHandler: ErrorRequestHandler = (error, _request, response, _next) => {
     void _next;
+    if (error instanceof multer.MulterError) {
+      if (error.code === "LIMIT_FILE_SIZE") {
+        response.status(413).json({ code: "file_too_large", message: "The bill must be 10 MB or smaller." });
+        return;
+      }
+      response.status(400).json({ code: "malformed_upload", message: "Upload one bill file using the bill field." });
+      return;
+    }
+    if (error instanceof Error && /unexpected end of form|malformed part header/i.test(error.message)) {
+      response.status(400).json({ code: "malformed_upload", message: "Upload one bill file using the bill field." });
+      return;
+    }
     const bodyError = error as { status?: number; type?: string };
     if (bodyError.status === 413 || bodyError.type === "entity.too.large") {
       response.status(413).json({ message: "Request is too large." });
